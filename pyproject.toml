@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "questionnaire-builder-backend"
+version = "0.1.0"
+description = ""
+authors = ["thenav56 <ayernavin@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11.3"
+django-environ = "*"
+Django = ">=4.2,<4.3"
+drf-writable-nested = "*"
+djangorestframework = "*"
+psycopg2-binary = "==2.9.6"
+django-cors-headers = "*"
+strawberry-graphql = "^0.177"
+strawberry-django-plus = "*"
+sentry-sdk = "*"
+ipython = "*"
+factory-boy = "*"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

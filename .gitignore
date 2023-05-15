@@ -1,0 +1,11 @@
+__pycache__/
+.coverage
+.pytest_cache/
+.idea/
+*.tmp
+*.bak
+*.swp
+*.pyc
+
+!.env.sample
+.env*
