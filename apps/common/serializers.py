@@ -1,9 +1,24 @@
+from django.utils.functional import cached_property
 from rest_framework import serializers
 
 from main.caches import local_cache, CacheKey
 
 
-class UserResourceSerializer(serializers.ModelSerializer):
+class ProjectScopeSerializerMixin(serializers.Serializer):
+
+    @cached_property
+    def project(self):
+        # XXX: For entities without project
+        project = self.context['active_project'].project
+        # This is a rare case, just to make sure this is validated
+        if self.instance:
+            model_with_project = self.instance
+            if model_with_project is None or model_with_project.project != project:
+                raise serializers.ValidationError('Invalid access. Different project')
+        return project
+
+
+class UserResourceSerializer(ProjectScopeSerializerMixin, serializers.ModelSerializer):
     modified_at = serializers.DateTimeField(read_only=True)
     modified_by = serializers.PrimaryKeyRelatedField(read_only=True)
     created_by_name = serializers.CharField(
@@ -17,6 +32,8 @@ class UserResourceSerializer(serializers.ModelSerializer):
     version_id = serializers.SerializerMethodField()
 
     def create(self, validated_data):
+        if 'project' in self.Meta.model._meta._forward_fields_map:
+            validated_data['project'] = self.project
         if 'created_by' in self.Meta.model._meta._forward_fields_map:
             validated_data['created_by'] = self.context['request'].user
         if 'modified_by' in self.Meta.model._meta._forward_fields_map:
@@ -24,6 +41,8 @@ class UserResourceSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
+        if 'project' in self.Meta.model._meta._forward_fields_map:
+            self.project  # Just for validation
         if 'modified_by' in self.Meta.model._meta._forward_fields_map:
             validated_data['modified_by'] = self.context['request'].user
         return super().update(instance, validated_data)

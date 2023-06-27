@@ -1,6 +1,37 @@
 """A generic type to return error messages"""
 scalar CustomErrorType
 
+"""Date with time (isoformat)"""
+scalar DateTime
+
+input DjangoModelFilterInput {
+  pk: ID!
+}
+
+type DjangoModelType {
+  pk: ID!
+}
+
+input IDFilterLookup {
+  exact: ID
+  iExact: ID
+  contains: ID
+  iContains: ID
+  inList: [ID!]
+  gt: ID
+  gte: ID
+  lt: ID
+  lte: ID
+  startsWith: ID
+  iStartsWith: ID
+  endsWith: ID
+  iEndsWith: ID
+  range: [ID!]
+  isNull: Boolean
+  regex: String
+  iRegex: String
+}
+
 input LoginInput {
   email: String!
   password: String!
@@ -14,6 +45,11 @@ type Mutation {
 type MutationEmptyResponseType {
   ok: Boolean!
   errors: CustomErrorType
+}
+
+input OffsetPaginationInput {
+  offset: Int! = 0
+  limit: Int! = -1
 }
 
 enum OptEmailNotificationTypeEnum {
@@ -40,12 +76,100 @@ input PasswordResetTriggerInput {
 type PrivateMutation {
   changeUserPassword(data: PasswordChangeInput!): MutationEmptyResponseType!
   updateMe(data: UserMeInput!): UserMeTypeMutationResponseType!
+  createProject(data: ProjectCreateInput!): ProjectTypeMutationResponseType!
+  projectScope(pk: ID!): ProjectScopeMutation
   id: ID!
 }
 
 type PrivateQuery {
   user: UserType!
+  projects(filters: ProjectFilter, pagination: OffsetPaginationInput): ProjectTypeCountList!
+  projectScope(pk: ID!): ProjectScopeType
   id: ID!
+}
+
+input ProjectCreateInput {
+  title: String!
+}
+
+input ProjectFilter {
+  id: IDFilterLookup
+  search: String
+}
+
+input ProjectMembershipFilter {
+  id: IDFilterLookup
+  search: String
+}
+
+enum ProjectMembershipRoleTypeEnum {
+  ADMIN
+  MEMBER
+}
+
+type ProjectMembershipType {
+  clientId: String!
+  id: ID!
+  role: ProjectMembershipRoleTypeEnum!
+  joinedAt: DateTime!
+  memberId: ID!
+  addedById: ID
+}
+
+type ProjectMembershipTypeBulkMutationResponseType {
+  errors: [CustomErrorType!]
+  results: [ProjectMembershipType!]
+  deleted: [ProjectMembershipType!]
+}
+
+type ProjectMembershipTypeCountList {
+  count: Int!
+  items: [ProjectMembershipType!]!
+}
+
+input ProjectMembershipUpdateInput {
+  id: ID = null
+  clientId: String = ""
+  member: ID = null
+  role: ProjectMembershipRoleTypeEnum = null
+}
+
+type ProjectScopeMutation {
+  id: ID!
+  createQuestionnaire(data: QuestionnaireCreateInput!): QuestionnaireTypeMutationResponseType!
+  updateQuestionnaire(data: QuestionnaireUpdateInput!): QuestionnaireTypeMutationResponseType!
+  deleteQuestionnaire(id: ID!): QuestionnaireTypeListMutationResponseType!
+  updateProject(data: ProjectCreateInput!): ProjectTypeMutationResponseType!
+  updateMemberships(items: [ProjectMembershipUpdateInput!], dataDeleteIds: [ID!]): ProjectMembershipTypeBulkMutationResponseType!
+}
+
+type ProjectScopeType {
+  questionnaires(filters: QuestionnaireFilter, pagination: OffsetPaginationInput): QuestionnaireTypeCountList!
+  questionnaire(pk: ID!): QuestionnaireType
+  id: ID!
+  project: ProjectType!
+}
+
+type ProjectType {
+  id: ID!
+  title: String!
+  createdAt: DateTime!
+  modifiedAt: DateTime!
+  createdBy: DjangoModelType!
+  modifiedBy: DjangoModelType!
+  members(filters: ProjectMembershipFilter, pagination: OffsetPaginationInput): ProjectMembershipTypeCountList!
+  currentUserRole: ProjectMembershipRoleTypeEnum
+}
+
+type ProjectTypeCountList {
+  count: Int!
+  items: [ProjectType!]!
+}
+
+type ProjectTypeMutationResponseType {
+  ok: Boolean!
+  errors: CustomErrorType
+  result: ProjectType
 }
 
 type PublicMutation {
@@ -65,6 +189,47 @@ type PublicQuery {
 type Query {
   public: PublicQuery!
   private: PrivateQuery!
+}
+
+input QuestionnaireCreateInput {
+  title: String!
+}
+
+input QuestionnaireFilter {
+  id: IDFilterLookup
+  project: DjangoModelFilterInput
+  search: String
+}
+
+type QuestionnaireType {
+  id: ID!
+  title: String!
+  createdAt: DateTime!
+  modifiedAt: DateTime!
+  createdBy: DjangoModelType!
+  modifiedBy: DjangoModelType!
+  projectId: ID!
+}
+
+type QuestionnaireTypeCountList {
+  count: Int!
+  items: [QuestionnaireType!]!
+}
+
+type QuestionnaireTypeListMutationResponseType {
+  ok: Boolean!
+  errors: CustomErrorType
+  result: [QuestionnaireType!]
+}
+
+type QuestionnaireTypeMutationResponseType {
+  ok: Boolean!
+  errors: CustomErrorType
+  result: QuestionnaireType
+}
+
+input QuestionnaireUpdateInput {
+  title: String = ""
 }
 
 input RegisterInput {

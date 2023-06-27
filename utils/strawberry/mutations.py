@@ -9,6 +9,7 @@ from django.db import transaction, models
 
 from utils.common import to_snake_case
 from utils.strawberry.transformers import generate_type_for_serializer
+from apps.project.models import Project
 
 
 logger = logging.getLogger(__name__)
@@ -181,6 +182,7 @@ class MutationEmptyResponseType():
 def get_serializer_context(info: Info):
     return {
         'request': info.context.request,
+        'active_project': info.context.active_project,
     }
 
 
@@ -303,7 +305,7 @@ class ModelMutation:
         items: list | None,
         delete_ids: list[strawberry.ID] | None,
         info: Info,
-        permission,
+        permission: Project.Permission,
     ) -> BulkMutationResponseType:
         if errors := self.check_permissions(info, permission):
             return BulkMutationResponseType(errors=[errors])
