@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from rest_framework import serializers
 
-from utils.common import to_camelcase
+from utils.common import to_camel_case
 
 
 def get_enum_name_from_django_field(
@@ -64,7 +64,7 @@ def get_enum_name_from_django_field(
     if field_name is None:
         raise Exception(f'{field=} should have a name')
     if model_name:
-        return f'{model_name}{to_camelcase(field_name.title())}'
+        return f'{model_name}{to_camel_case(field_name.title())}'
     if serializer_name:
-        return f'{serializer_name}{to_camelcase(field_name.title())}'
+        return f'{serializer_name}{to_camel_case(field_name.title())}'
     raise Exception(f'{serializer_name=} should have a value')

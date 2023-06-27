@@ -8,17 +8,17 @@ class UserResource(models.Model):
     created_by = models.ForeignKey(
         User,
         related_name='%(class)s_created',
-        default=None, blank=True, null=True,
-        on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
     )
     modified_by = models.ForeignKey(
         User,
         related_name='%(class)s_modified',
-        default=None, blank=True, null=True,
-        on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
     )
 
-    client_id = models.CharField(max_length=128, unique=True, default=None, null=True, blank=True)
+    # Typing
+    id: int
+    pk: int
 
     class Meta:
         abstract = True

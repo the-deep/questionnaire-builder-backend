@@ -53,8 +53,13 @@ class PrivateMutation(
 
 @strawberry.type
 class Query:
-    public: PublicQuery = strawberry.field(resolver=lambda: PublicQuery())
-    private: PrivateQuery = strawberry.field(permission_classes=[IsAuthenticated], resolver=lambda: PrivateQuery())
+    public: PublicQuery = strawberry.field(
+        resolver=lambda: PublicQuery()
+    )
+    private: PrivateQuery = strawberry.field(
+        permission_classes=[IsAuthenticated],
+        resolver=lambda: PrivateQuery()
+    )
 
 
 @strawberry.type

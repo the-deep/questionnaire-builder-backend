@@ -4,6 +4,7 @@ import dataclasses
 import datetime
 import decimal
 
+from importlib import import_module
 from collections import OrderedDict
 from functools import singledispatch
 from rest_framework import serializers, fields as drf_fields
@@ -17,9 +18,12 @@ from .enums import get_enum_name_from_django_field
 from .serializers import IntegerIDField, StringIDField
 from . import types
 
+from strawberry_django.type import get_field
 
 """
-XXX: This is a experimental transformer which translates DRF -> Strawberry Input Type
+XXX:
+- This is a experimental transformer which translates DRF -> Strawberry Input Type
+- Also overwrites some modules
 """
 
 
@@ -258,3 +262,37 @@ def generate_type_for_serializer(
             ]
         )
     )
+
+
+class MonkeyPatch:
+    og_get_field = get_field
+
+    @classmethod
+    def get_field_monkey_patch(
+        cls,
+        django_type,
+        field_name: str,
+        field_annotation: StrawberryAnnotation | None = None,
+    ):
+        """
+        For field with <field>_id, let's use ID instead of object while rendering.
+        For eg:
+            For field: `member_id: strawberry.ID`, where `member` is a ForeignKey
+                Previous behaviour:
+                    member_id gives value "Member object (1)" == str(obj.member)
+                New behaviour:
+                    member_id gives value "1" == str(obj.member_id)
+        """
+        field = cls.og_get_field(
+            django_type,
+            field_name,
+            field_annotation,
+        )
+        # CUSTOM CHANGE -- START
+        if field_name.endswith('_id'):
+            field.django_name = field_name
+        return field
+        # CUSTOM CHANGE -- END
+
+
+import_module('strawberry_django.type').get_field = MonkeyPatch.get_field_monkey_patch

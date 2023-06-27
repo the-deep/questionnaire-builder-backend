@@ -110,6 +110,7 @@ INSTALLED_APPS = [
     # External apps
     'django_premailer',
     'storages',
+    'corsheaders',
     # Internal apps
     'apps.common',  # Common
     'apps.user',
@@ -118,6 +119,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -361,3 +363,21 @@ elif not TESTING and SPECIFED_EMAIL_BACKEND == 'SMTP':
 else:
     # DUMP EMAILS TO CONSOLE
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# Strawberry
+# -- Pagination
+DEFAULT_PAGINATION_LIMIT = 50
+MAX_PAGINATION_LIMIT = 100
+
+# Caches
+CACHES = {
+    'default': {
+        # XXX: Use redis if needed
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'local-memory-01',
+    },
+    'local-memory': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'local-memory-02',
+    }
+}

@@ -4,7 +4,7 @@ from utils.strawberry.enums import get_enum_name_from_django_field
 
 from .models import User
 
-OptEmailNotificationTypeEnum = strawberry.enum(User.OptEmailNotificationType, name="OptEmailNotificationTypeEnum")
+OptEmailNotificationTypeEnum = strawberry.enum(User.OptEmailNotificationType, name='OptEmailNotificationTypeEnum')
 
 
 enum_map = {
